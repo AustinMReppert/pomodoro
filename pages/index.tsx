@@ -14,6 +14,7 @@ interface State {
   seconds: number;
   paused: boolean;
   repeat: boolean;
+  playedTuturu: boolean
 }
 
 class Home extends React.Component<{}, State> {
@@ -30,24 +31,34 @@ class Home extends React.Component<{}, State> {
       minutes: Math.trunc(workTime / (60 * 1000)),
       seconds: Math.trunc((workTime / 1000) % 60),
       paused: true,
-      repeat: true
+      repeat: true,
+      playedTuturu: false
     };
   }
 
   tick = () => {
     let now: number = new Date().getTime();
+    if (!this.state.playedTuturu && now > this.state.endTime - restTime) {
+      var audioElement = document.getElementById("tuturu") as HTMLAudioElement;
+      if(audioElement != null) {
+          audioElement.play();
+          this.setState({playedTuturu: true});
+        }
+    }
     if (now > this.state.endTime)
       if (this.state.repeat)
         this.setState({
           time: now + workTime,
-          endTime: now + workTime + restTime
+          endTime: now + workTime + restTime,
+          playedTuturu: false
         });
       else
         this.setState({
           time: now + workTime,
           endTime: now + workTime + restTime,
           paused: true,
-          pauseTime: now
+          pauseTime: now,
+          playedTuturu: false
         });
     this.setState({
       minutes: this.getMinutes(now),
@@ -125,7 +136,7 @@ class Home extends React.Component<{}, State> {
             />
             <label htmlFor="repeat">Repeat</label>
           </div>
-          <audio src=""></audio>
+          <audio hidden controls src="/static/tuturu.mp3" id="tuturu"></audio>
         </main>
       </div>
     );
